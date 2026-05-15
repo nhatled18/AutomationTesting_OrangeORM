@@ -1,0 +1,32 @@
+[
+  {
+    "scenario": "Happy Case - Thêm kỹ năng mới đầy đủ",
+    "expected": "success",
+    "data": {
+      "name": "Playwright Automation",
+      "description": "Kỹ năng kiểm thử tự động với Playwright Framework chuyên sâu"
+    }
+  },
+  {
+    "scenario": "Happy Case - Thêm kỹ năng chỉ có tên",
+    "expected": "success",
+    "data": {
+      "name": "Manual Testing"
+    }
+  },
+  {
+    "scenario": "Negative Case - Bỏ trống tên kỹ năng (Bắt buộc)",
+    "expected": "error_required",
+    "data": {
+      "name": ""
+    }
+  },
+  {
+    "scenario": "Edge Case - Mô tả kỹ năng cực dài",
+    "expected": "success",
+    "data": {
+      "name": "Stress Test Skill",
+      "description": "Mô tả này dùng để kiểm tra giới hạn của trường dữ liệu textarea trong hệ thống OrangeHRM xem nó có thể chứa được bao nhiêu ký tự mà không bị lỗi layout hoặc lỗi database...................................................................................."
+    }
+  }
+]

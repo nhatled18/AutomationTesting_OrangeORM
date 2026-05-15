@@ -1,0 +1,23 @@
+[
+  {
+    "scenario": "Search by valid Employee Id",
+    "expected": "found",
+    "data": {
+      "employeeId": "0454235"
+    }
+  },
+  {
+    "scenario": "Search by valid Employee Name",
+    "expected": "found",
+    "data": {
+      "employeeName": "AILAN"
+    }
+  },
+  {
+    "scenario": "Search with non-existent Employee Id",
+    "expected": "not_found",
+    "data": {
+      "employeeId": "999999999"
+    }
+  }
+]

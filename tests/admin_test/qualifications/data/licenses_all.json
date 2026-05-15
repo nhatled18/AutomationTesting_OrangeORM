@@ -1,0 +1,30 @@
+[
+  {
+    "scenario": "Happy Case - Thêm bằng cấp/chứng chỉ (Certified Public Accountant)",
+    "expected": "success",
+    "data": {
+      "name": "Certified Public Accountant (CPA)"
+    }
+  },
+  {
+    "scenario": "Happy Case - Thêm bằng cấp/chứng chỉ (Driver's License)",
+    "expected": "success",
+    "data": {
+      "name": "Driver's License (Class A)"
+    }
+  },
+  {
+    "scenario": "Negative Case - Bỏ trống trường Name (Bắt buộc)",
+    "expected": "error_required",
+    "data": {
+      "name": ""
+    }
+  },
+  {
+    "scenario": "Edge Case - Tên chứng chỉ có ký tự đặc biệt",
+    "expected": "success",
+    "data": {
+      "name": "AWS Certified Solutions Architect - Associate ☁️"
+    }
+  }
+]

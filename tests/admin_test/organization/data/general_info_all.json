@@ -1,0 +1,86 @@
+[
+  {
+    "scenario": "Happy Case - Công ty Công nghệ Mỹ",
+    "expected": "success",
+    "data": {
+      "organizationName": "Cyberdyne Systems Tech",
+      "registrationNumber": "TECH-101010",
+      "taxId": "TAX-US-999",
+      "phone": "0111222333",
+      "fax": "0111222444",
+      "email": "hr@cyberdyne.io",
+      "addressStreet1": "123 Innovation Drive",
+      "addressStreet2": "Building 5",
+      "city": "Palo Alto",
+      "stateProvince": "California",
+      "zipCode": "94301",
+      "country": "United States",
+      "notes": "Leading AI Research Center."
+    }
+  },
+  {
+    "scenario": "Happy Case - Công ty Startup VN",
+    "expected": "success",
+    "data": {
+      "organizationName": "QuickFix Startup VN",
+      "registrationNumber": "VN-STU-001",
+      "taxId": "0314567890",
+      "phone": "028 3823 4567",
+      "fax": "028 3823 4568",
+      "email": "hello@quickfix.vn",
+      "addressStreet1": "99 Lê Lợi",
+      "addressStreet2": "Quận 1",
+      "city": "Hồ Chí Minh",
+      "stateProvince": "TP.HCM",
+      "zipCode": "70000",
+      "country": "Vietnam",
+      "notes": "Giải pháp phần mềm nhanh gọn."
+    }
+  },
+  {
+    "scenario": "Negative Case - Bỏ trống tên tổ chức (Bắt buộc)",
+    "expected": "error_required",
+    "data": {
+      "organizationName": "",
+      "registrationNumber": "TEST-001",
+      "email": "test@admin.com"
+    }
+  },
+  {
+    "scenario": "Negative Case - Email sai định dạng (thiếu @)",
+    "expected": "error_email",
+    "data": {
+      "organizationName": "Email Test Org",
+      "email": "wrong.email.format.com"
+    }
+  },
+  {
+    "scenario": "Negative Case - Email chỉ có domain",
+    "expected": "error_email",
+    "data": {
+      "organizationName": "Email Test Org 2",
+      "email": "@onlydomain.com"
+    }
+  },
+  {
+    "scenario": "Edge Case - Nhập ký tự Unicode và Emoji cực nặng",
+    "expected": "success",
+    "data": {
+      "organizationName": "Unicode Test 𝚺𝚲𝚽 💎👑",
+      "registrationNumber": "REG-UNI",
+      "email": "unicode@test.com",
+      "notes": "Tiếng Việt: Xin chào thế giới! 🌍 Hỗ trợ đầy đủ các ký tự đặc biệt: !@#$%^&*()_+"
+    }
+  },
+  {
+    "scenario": "Edge Case - Stress Test chuỗi ký tự dài",
+    "expected": "success",
+    "data": {
+      "organizationName": "Long Name Test Organization Long Name Test Organization",
+      "registrationNumber": "REG-LONG",
+      "email": "long@test.com",
+      "addressStreet1": "Dòng địa chỉ cực dài dùng để kiểm tra giới hạn của giao diện người dùng và cơ sở dữ liệu........................................",
+      "notes": "Testing field length limits."
+    }
+  }
+]

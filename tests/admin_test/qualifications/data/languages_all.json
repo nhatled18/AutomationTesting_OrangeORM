@@ -1,0 +1,30 @@
+[
+  {
+    "scenario": "Happy Case - Thêm ngôn ngữ (Vietnamese)",
+    "expected": "success",
+    "data": {
+      "name": "Vietnamese"
+    }
+  },
+  {
+    "scenario": "Happy Case - Thêm ngôn ngữ (Japanese)",
+    "expected": "success",
+    "data": {
+      "name": "Japanese"
+    }
+  },
+  {
+    "scenario": "Negative Case - Bỏ trống trường Name (Bắt buộc)",
+    "expected": "error_required",
+    "data": {
+      "name": ""
+    }
+  },
+  {
+    "scenario": "Edge Case - Ngôn ngữ có ký tự đặc biệt",
+    "expected": "success",
+    "data": {
+      "name": "English (US) 🇺🇸"
+    }
+  }
+]

@@ -1,0 +1,30 @@
+[
+  {
+    "scenario": "Happy Case - Thêm tư cách thành viên (British Computer Society)",
+    "expected": "success",
+    "data": {
+      "name": "British Computer Society (BCS)"
+    }
+  },
+  {
+    "scenario": "Happy Case - Thêm tư cách thành viên (IEEE)",
+    "expected": "success",
+    "data": {
+      "name": "IEEE Computer Society"
+    }
+  },
+  {
+    "scenario": "Negative Case - Bỏ trống trường Name (Bắt buộc)",
+    "expected": "error_required",
+    "data": {
+      "name": ""
+    }
+  },
+  {
+    "scenario": "Edge Case - Tên tổ chức có ký tự đặc biệt",
+    "expected": "success",
+    "data": {
+      "name": "Association for Computing Machinery (ACM) 💻"
+    }
+  }
+]

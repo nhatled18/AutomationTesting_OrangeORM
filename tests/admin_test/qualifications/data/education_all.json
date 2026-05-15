@@ -1,0 +1,30 @@
+[
+  {
+    "scenario": "Happy Case - Thêm trình độ học vấn (Bachelor)",
+    "expected": "success",
+    "data": {
+      "level": "Bachelor's Degree"
+    }
+  },
+  {
+    "scenario": "Happy Case - Thêm trình độ học vấn (Doctorate)",
+    "expected": "success",
+    "data": {
+      "level": "Doctorate"
+    }
+  },
+  {
+    "scenario": "Negative Case - Bỏ trống trường Level (Bắt buộc)",
+    "expected": "error_required",
+    "data": {
+      "level": ""
+    }
+  },
+  {
+    "scenario": "Edge Case - Trình độ học vấn có ký tự đặc biệt",
+    "expected": "success",
+    "data": {
+      "level": "Cert. IT (Level 7) 🎓"
+    }
+  }
+]

@@ -1,0 +1,49 @@
+[
+  {
+    "scenario": "Happy Case - Thêm địa điểm đầy đủ thông tin (VN)",
+    "expected": "success",
+    "data": {
+      "name": "Hanoi Office",
+      "city": "Hanoi",
+      "state": "Hoan Kiem",
+      "zip": "10000",
+      "country": "Vietnam",
+      "phone": "0241234567",
+      "fax": "0241234568",
+      "address": "1 Ly Thai To, Hoan Kiem, Hanoi",
+      "notes": "Trụ sở chính tại Miền Bắc"
+    }
+  },
+  {
+    "scenario": "Happy Case - Thêm địa điểm tối thiểu (US)",
+    "expected": "success",
+    "data": {
+      "name": "New York Hub",
+      "country": "United States"
+    }
+  },
+  {
+    "scenario": "Negative Case - Bỏ trống tên địa điểm (Bắt buộc)",
+    "expected": "error_name_required",
+    "data": {
+      "name": "",
+      "country": "Vietnam"
+    }
+  },
+  {
+    "scenario": "Negative Case - Chưa chọn quốc gia (Bắt buộc)",
+    "expected": "error_country_required",
+    "data": {
+      "name": "No Country Office",
+      "country": ""
+    }
+  },
+  {
+    "scenario": "Edge Case - Tên địa điểm cực dài",
+    "expected": "success",
+    "data": {
+      "name": "This is a very long location name for testing purpose only to see how it works",
+      "country": "United Kingdom"
+    }
+  }
+]

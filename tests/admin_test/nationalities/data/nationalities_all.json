@@ -1,0 +1,23 @@
+[
+  {
+    "scenario": "Happy Case - Thêm quốc tịch (Vietnamese)",
+    "expected": "success",
+    "data": {
+      "name": "Vietnamese Test"
+    }
+  },
+  {
+    "scenario": "Happy Case - Thêm quốc tịch (Japanese)",
+    "expected": "success",
+    "data": {
+      "name": "Japanese Test"
+    }
+  },
+  {
+    "scenario": "Negative Case - Bỏ trống trường Name (Bắt buộc)",
+    "expected": "error_required",
+    "data": {
+      "name": ""
+    }
+  }
+]
