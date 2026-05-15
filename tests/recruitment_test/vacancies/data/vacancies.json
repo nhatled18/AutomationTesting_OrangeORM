@@ -1,0 +1,23 @@
+[
+    {
+        "scenario": "Tìm kiếm Vacancy theo Job Title",
+        "data": {
+            "jobTitle": "Account Assistant"
+        },
+        "expected": "filtered"
+    },
+    {
+        "scenario": "Tìm kiếm theo Hiring Manager",
+        "data": {
+            "hiringManager": "manda user"
+        },
+        "expected": "filtered"
+    },
+    {
+        "scenario": "Xóa bộ lọc (Reset)",
+        "data": {
+            "jobTitle": "Software Engineer"
+        },
+        "expected": "reset"
+    }
+]

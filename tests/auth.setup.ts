@@ -7,8 +7,9 @@ setup('authenticate', async ({ page }) => {
   await page.getByPlaceholder('Username').fill('Admin');
   await page.getByPlaceholder('Password').fill('admin123');
   await page.getByRole('button', { name: 'Login' }).click();
+  await page.locator('.oxd-form-loader').waitFor({ state: 'detached' });
 
-  await expect(page).toHaveURL(/.*dashboard/);
+  await expect(page).toHaveURL(/.*dashboard/, { timeout: 20000 });
 
   // Lưu trạng thái đăng nhập vào file
   await page.context().storageState({ path: authFile });

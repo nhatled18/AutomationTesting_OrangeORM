@@ -5,7 +5,9 @@ test.describe("Functional Test - Add Qualification License", () => {
     
     test.beforeEach(async ({ page }) => {
         await page.goto("https://opensource-demo.orangehrmlive.com/web/index.php/admin/viewLicenses");
+        await page.locator('.oxd-form-loader').waitFor({ state: 'detached' });
         await page.getByRole('button', { name: ' Add ' }).click();
+        await page.locator('.oxd-form-loader').waitFor({ state: 'detached' });
     });
 
     for (const scenario of testData) {
@@ -17,6 +19,7 @@ test.describe("Functional Test - Add Qualification License", () => {
                 await page.locator('div').filter({ hasText: /^Name$/ }).locator('input').fill(finalName);
             }
 
+            await page.locator('.oxd-form-loader').waitFor({ state: 'detached' });
             await page.getByRole('button', { name: ' Save ' }).click();
 
             if (scenario.expected === "success") {
@@ -24,7 +27,7 @@ test.describe("Functional Test - Add Qualification License", () => {
                 await expect(page).toHaveURL(/.*viewLicenses/);
             } 
             else if (scenario.expected === "error_required") {
-                await expect(page.locator('div').filter({ hasText: /^Name$/ }).getByText('Required')).toBeVisible();
+                await expect(page.locator('.oxd-input-group').filter({ has: page.getByText('Name') }).getByText('Required')).toBeVisible();
             }
         });
     }

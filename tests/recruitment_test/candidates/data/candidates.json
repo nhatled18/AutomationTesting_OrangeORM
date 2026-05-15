@@ -1,0 +1,23 @@
+[
+    {
+        "scenario": "Tìm kiếm ứng viên theo Job Title",
+        "data": {
+            "jobTitle": "Software Engineer"
+        },
+        "expected": "filtered"
+    },
+    {
+        "scenario": "Tìm kiếm ứng viên theo Candidate Name",
+        "data": {
+            "candidateName": "John Doe"
+        },
+        "expected": "filtered"
+    },
+    {
+        "scenario": "Xóa bộ lọc (Reset)",
+        "data": {
+            "keywords": "Playwright"
+        },
+        "expected": "reset"
+    }
+]

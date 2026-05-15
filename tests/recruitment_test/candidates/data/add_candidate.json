@@ -1,0 +1,22 @@
+[
+    {
+        "scenario": "Thêm ứng viên thành công với đầy đủ thông tin",
+        "data": {
+            "firstName": "Nguyen",
+            "lastName": "Van A",
+            "email": "vana@example.com",
+            "contactNumber": "0987654321",
+            "keywords": "Playwright, QA",
+            "notes": "Ứng viên tiềm năng cho vị trí Automation Tester."
+        },
+        "expected": "success"
+    },
+    {
+        "scenario": "Lỗi khi để trống Email",
+        "data": {
+            "firstName": "Tran",
+            "lastName": "Van B"
+        },
+        "expected": "error_email_required"
+    }
+]

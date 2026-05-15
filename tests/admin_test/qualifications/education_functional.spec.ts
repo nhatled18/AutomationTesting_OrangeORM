@@ -6,7 +6,9 @@ test.describe("Functional Test - Add Qualification Education", () => {
     test.beforeEach(async ({ page }) => {
         // Vào trang danh sách rồi nhấn Add
         await page.goto("https://opensource-demo.orangehrmlive.com/web/index.php/admin/viewEducation");
+        await page.locator('.oxd-form-loader').waitFor({ state: 'detached' });
         await page.getByRole('button', { name: ' Add ' }).click();
+        await page.locator('.oxd-form-loader').waitFor({ state: 'detached' });
     });
 
     for (const scenario of testData) {
@@ -21,6 +23,7 @@ test.describe("Functional Test - Add Qualification Education", () => {
             }
 
             // Nhấn Save
+            await page.locator('.oxd-form-loader').waitFor({ state: 'detached' });
             await page.getByRole('button', { name: ' Save ' }).click();
 
             // Kiểm tra kết quả
@@ -29,7 +32,7 @@ test.describe("Functional Test - Add Qualification Education", () => {
                 await expect(page).toHaveURL(/.*viewEducation/);
             } 
             else if (scenario.expected === "error_required") {
-                await expect(page.locator('div').filter({ hasText: /^Level$/ }).getByText('Required')).toBeVisible();
+                await expect(page.locator('.oxd-input-group').filter({ has: page.getByText('Level') }).getByText('Required')).toBeVisible();
             }
         });
     }

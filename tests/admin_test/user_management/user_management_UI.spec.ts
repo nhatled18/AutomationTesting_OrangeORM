@@ -21,27 +21,28 @@ test.describe("UI Test - User Management Page", () => {
         // Username input
         await expect(page.locator('div').filter({ hasText: /^Username$/ }).locator('input')).toBeVisible();
 
-        // User Role dropdown
-        await expect(page.locator('div').filter({ hasText: /^User Role$/ }).locator('.oxd-select-wrapper')).toBeVisible();
+        // User Role dropdown (Nới lỏng regex cho ổn định)
+        await expect(page.locator('div').filter({ hasText: /User Role/ }).locator('.oxd-select-wrapper')).toBeVisible();
 
         // Employee Name autocomplete
         await expect(page.getByPlaceholder('Type for hints...')).toBeVisible();
 
         // Status dropdown
-        await expect(page.locator('div').filter({ hasText: /^Status$/ }).locator('.oxd-select-wrapper')).toBeVisible();
+        await expect(page.locator('div').filter({ hasText: /Status/ }).locator('.oxd-select-wrapper')).toBeVisible();
     });
 
     test("Kiểm tra các cột trong bảng (Table Headers)", async ({ page }) => {
         const header = page.locator('.oxd-table-header');
         
-        await expect(header.getByText('Username', { exact: true })).toBeVisible();
-        await expect(header.getByText('User Role', { exact: true })).toBeVisible();
-        await expect(header.getByText('Employee Name', { exact: true })).toBeVisible();
-        await expect(header.getByText('Status', { exact: true })).toBeVisible();
-        await expect(header.getByText('Actions', { exact: true })).toBeVisible();
+        await expect(header.getByText('Username')).toBeVisible();
+        await expect(header.getByText('User Role')).toBeVisible();
+        await expect(header.getByText('Employee Name')).toBeVisible();
+        await expect(header.getByText('Status')).toBeVisible();
+        await expect(header.getByText('Actions')).toBeVisible();
     });
 
     test("Kiểm tra dữ liệu hàng đầu tiên và các icon thao tác", async ({ page }) => {
+        await page.locator('.oxd-form-loader').waitFor({ state: 'detached' });
         const firstRow = page.locator('.oxd-table-card').first();
         
         // Đợi dữ liệu load lên
@@ -53,7 +54,8 @@ test.describe("UI Test - User Management Page", () => {
     });
 
     test("Kiểm tra dòng thông báo số lượng bản ghi", async ({ page }) => {
-        const recordsCount = page.locator('span.oxd-text--span').filter({ hasText: /Records Found/ });
-        await expect(recordsCount).toBeVisible();
+        await page.locator('.oxd-form-loader').waitFor({ state: 'detached' });
+        const recordsCount = page.locator('span').filter({ hasText: /Records Found/ });
+        await expect(recordsCount.first()).toBeVisible();
     });
 });

@@ -6,7 +6,9 @@ test.describe("Functional Test - Add Organization Location", () => {
     test.beforeEach(async ({ page }) => {
         // Vào trang danh sách rồi nhấn Add
         await page.goto("https://opensource-demo.orangehrmlive.com/web/index.php/admin/viewLocations");
+        await page.locator('.oxd-form-loader').waitFor({ state: 'detached' });
         await page.getByRole('button', { name: ' Add ' }).click();
+        await page.locator('.oxd-form-loader').waitFor({ state: 'detached' });
     });
 
     for (const scenario of testData) {
@@ -30,7 +32,9 @@ test.describe("Functional Test - Add Organization Location", () => {
             }
             if (d.country) {
                 await page.locator('.oxd-select-wrapper').click();
-                await page.getByRole('option', { name: d.country }).click();
+                await page.locator('.oxd-form-loader').waitFor({ state: 'detached' });
+                // Dùng regex có neo ^ và $ để handle Vietnam/Viet Nam và tránh trùng United States
+                await page.getByRole('option', { name: new RegExp('^' + d.country + '$', 'i') }).click();
             }
             if (d.phone) {
                 await page.locator('div').filter({ hasText: /^Phone$/ }).locator('input').fill(d.phone);
@@ -46,6 +50,7 @@ test.describe("Functional Test - Add Organization Location", () => {
             }
 
             // Nhấn Save
+            await page.locator('.oxd-form-loader').waitFor({ state: 'detached' });
             await page.getByRole('button', { name: ' Save ' }).click();
 
             // Kiểm tra kết quả
@@ -54,10 +59,10 @@ test.describe("Functional Test - Add Organization Location", () => {
                 await expect(page).toHaveURL(/.*viewLocations/);
             } 
             else if (scenario.expected === "error_name_required") {
-                await expect(page.locator('div').filter({ hasText: /^Name$/ }).getByText('Required')).toBeVisible();
+                await expect(page.locator('.oxd-input-group').filter({ has: page.getByText('Name') }).getByText('Required')).toBeVisible();
             }
             else if (scenario.expected === "error_country_required") {
-                await expect(page.locator('div').filter({ hasText: /^Country$/ }).getByText('Required')).toBeVisible();
+                await expect(page.locator('.oxd-input-group').filter({ has: page.getByText('Country') }).getByText('Required')).toBeVisible();
             }
         });
     }

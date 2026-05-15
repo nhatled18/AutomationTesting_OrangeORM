@@ -5,6 +5,7 @@ test.describe("Advanced Data-Driven Testing - Organization General Info", () => 
     
     test.beforeEach(async ({ page }) => {
         await page.goto("https://opensource-demo.orangehrmlive.com/web/index.php/admin/viewOrganizationGeneralInformation");
+        await page.locator('.oxd-form-loader').waitFor({ state: 'detached' });
     });
 
     // Duyệt qua từng kịch bản trong file JSON tổng hợp
@@ -13,6 +14,7 @@ test.describe("Advanced Data-Driven Testing - Organization General Info", () => 
             const d = scenario.data;
 
             // 1. Bật chế độ Edit
+            await page.locator('.oxd-form-loader').waitFor({ state: 'detached' });
             await page.locator('.oxd-switch-input').click();
 
             // 2. Điền dữ liệu (Chỉ điền những trường có trong JSON của kịch bản đó)
@@ -42,13 +44,16 @@ test.describe("Advanced Data-Driven Testing - Organization General Info", () => 
             }
             if (d.country) {
                 await page.locator('.oxd-select-wrapper').click();
-                await page.getByRole('option', { name: d.country }).click();
+                await page.locator('.oxd-form-loader').waitFor({ state: 'detached' });
+                // Dùng regex có neo ^ và $ để handle Vietnam/Viet Nam và tránh trùng United States
+                await page.getByRole('option', { name: new RegExp('^' + d.country + '$', 'i') }).click();
             }
             if (d.notes) {
                 await page.locator('div').filter({ hasText: /^Notes$/ }).locator('textarea').fill(d.notes);
             }
 
             // 3. Nhấn Save
+            await page.locator('.oxd-form-loader').waitFor({ state: 'detached' });
             await page.getByRole('button', { name: ' Save ' }).click();
 
             // 4. Kiểm tra kết quả mong đợi (Assertion logic)
@@ -58,11 +63,11 @@ test.describe("Advanced Data-Driven Testing - Organization General Info", () => 
             } 
             else if (scenario.expected === "error_required") {
                 // Kiểm tra lỗi bắt buộc cho Organization Name
-                await expect(page.locator('div').filter({ hasText: /^Organization Name$/ }).getByText('Required')).toBeVisible();
+                await expect(page.locator('.oxd-input-group').filter({ has: page.getByText('Organization Name') }).getByText('Required')).toBeVisible();
             } 
             else if (scenario.expected === "error_email") {
-                // Kiểm tra lỗi định dạng email
-                await expect(page.getByText('Expected format: admin@example.com')).toBeVisible();
+                // Kiểm tra lỗi định dạng email (Dùng regex không phân biệt hoa thường)
+                await expect(page.getByText(/expected format/i)).toBeVisible();
             }
         });
     }

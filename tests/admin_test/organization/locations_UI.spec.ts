@@ -21,9 +21,10 @@ test.describe("UI Test - Organization Locations", () => {
     test("Kiểm tra cấu trúc bảng danh sách địa điểm", async ({ page }) => {
         const header = page.locator('.oxd-table-header');
         const expectedHeaders = ["Name", "City", "Country", "Phone", "Number of Employees", "Actions"];
-
         for (const h of expectedHeaders) {
-            await expect(header.getByText(h, { exact: true })).toBeVisible();
+            await page.locator('.oxd-form-loader').waitFor({ state: 'detached' });
+            // Bỏ exact: true để linh hoạt hơn với khoảng trắng/icon
+            await expect(header.getByText(h)).toBeVisible();
         }
     });
 

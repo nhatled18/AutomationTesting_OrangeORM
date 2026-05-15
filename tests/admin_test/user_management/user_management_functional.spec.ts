@@ -8,7 +8,7 @@ test.describe("Functional Test - User Management Page", () => {
     });
 
     test("Tính năng tìm kiếm theo Username", async ({ page }) => {
-        // 1. Nhập Username là 'Admin'
+        await page.locator('.oxd-form-loader').waitFor({ state: 'detached' });
         const usernameInput = page.locator('div').filter({ hasText: /^Username$/ }).locator('input');
         await usernameInput.fill("Admin");
 
@@ -32,8 +32,9 @@ test.describe("Functional Test - User Management Page", () => {
         await expect(usernameInput).toHaveValue("");
     });
 
-    test("Tính năng tìm kiếm theo User Role", async ({ page }) => {
+    test("Tính năng lọc theo User Role", async ({ page }) => {
         // 1. Click vào dropdown User Role
+        await page.locator('.oxd-form-loader').waitFor({ state: 'detached' });
         const roleDropdown = page.locator('div').filter({ hasText: /^User Role$/ }).locator('.oxd-select-wrapper');
         await roleDropdown.click();
         
@@ -89,8 +90,8 @@ test.describe("Functional Test - User Management Page", () => {
         const firstRowDeleteBtn = page.locator('.oxd-table-card').first().locator('.bi-trash');
         await firstRowDeleteBtn.click();
 
-        // 2. Kiểm tra xem có xuất hiện Popup xác nhận xóa không
-        await expect(page.getByText('Are you Sure?')).toBeVisible();
+        // 2. Kiểm tra xem có xuất hiện Popup xác nhận xóa không (Dùng regex không phân biệt hoa thường)
+        await expect(page.getByText(/Are you sure/i)).toBeVisible();
 
         // 3. Nhấn nút "No, Cancel" để đóng popup
         await page.getByRole('button', { name: ' No, Cancel ' }).click();

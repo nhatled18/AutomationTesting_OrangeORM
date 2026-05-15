@@ -1,0 +1,23 @@
+[
+    {
+        "scenario": "Tìm kiếm report tồn tại",
+        "data": {
+            "reportName": "PIM Sample Report"
+        },
+        "expected": "found"
+    },
+    {
+        "scenario": "Tìm kiếm report không tồn tại",
+        "data": {
+            "reportName": "Non Existent Report"
+        },
+        "expected": "not_found"
+    },
+    {
+        "scenario": "Reset bộ lọc",
+        "data": {
+            "reportName": "PIM Sample Report"
+        },
+        "expected": "reset"
+    }
+]

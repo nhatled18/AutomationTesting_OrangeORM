@@ -1,0 +1,34 @@
+[
+    {
+        "scenario": "Thêm nhân viên thành công với đầy đủ thông tin",
+        "data": {
+            "firstName": "Nguyen",
+            "middleName": "Van",
+            "lastName": "A",
+            "employeeId": "12345"
+        },
+        "expected": "success"
+    },
+    {
+        "scenario": "Thêm nhân viên thành công chỉ với trường bắt buộc",
+        "data": {
+            "firstName": "Tran",
+            "lastName": "B"
+        },
+        "expected": "success"
+    },
+    {
+        "scenario": "Lỗi khi để trống First Name",
+        "data": {
+            "lastName": "C"
+        },
+        "expected": "error_firstName_required"
+    },
+    {
+        "scenario": "Lỗi khi để trống Last Name",
+        "data": {
+            "firstName": "Le"
+        },
+        "expected": "error_lastName_required"
+    }
+]

@@ -5,6 +5,7 @@ test.describe("UI Test - PIM Employee List", () => {
     test.beforeEach(async ({ page }) => {
         // Điều hướng đến trang Employee List
         await page.goto("https://opensource-demo.orangehrmlive.com/web/index.php/pim/viewEmployeeList");
+        await page.locator('.oxd-form-loader').waitFor({ state: 'detached' });
     });
 
     test("Kiểm tra tiêu đề và khu vực tìm kiếm", async ({ page }) => {
@@ -29,7 +30,8 @@ test.describe("UI Test - PIM Employee List", () => {
     test("Kiểm tra cấu trúc bảng danh sách nhân viên", async ({ page }) => {
         const header = page.locator('.oxd-table-header');
         
-        await expect(header.getByText('Id')).toBeVisible();
+        // Dùng regex để khớp chính xác chữ Id, tránh dính vào Middle Name
+        await expect(header.getByText(/^Id$/)).toBeVisible();
         await expect(header.getByText('First (& Middle) Name')).toBeVisible();
         await expect(header.getByText('Last Name')).toBeVisible();
         await expect(header.getByText('Job Title')).toBeVisible();
