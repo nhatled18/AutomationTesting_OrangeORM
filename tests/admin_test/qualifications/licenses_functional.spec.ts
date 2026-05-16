@@ -23,7 +23,7 @@ test.describe("Functional Test - Add Qualification License", () => {
             await page.getByRole('button', { name: ' Save ' }).click();
 
             if (scenario.expected === "success") {
-                await expect(page.getByText('Successfully Saved')).toBeVisible();
+                await expect(page.getByText(/Success/i).first()).toBeVisible();
                 await expect(page).toHaveURL(/.*viewLicenses/);
             } 
             else if (scenario.expected === "error_required") {

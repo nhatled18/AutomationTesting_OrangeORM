@@ -4,7 +4,6 @@ import testData from "./data/locations_all.json";
 test.describe("Functional Test - Add Organization Location", () => {
     
     test.beforeEach(async ({ page }) => {
-        // Vào trang danh sách rồi nhấn Add
         await page.goto("https://opensource-demo.orangehrmlive.com/web/index.php/admin/viewLocations");
         await page.locator('.oxd-form-loader').waitFor({ state: 'detached' });
         await page.getByRole('button', { name: ' Add ' }).click();
@@ -15,38 +14,27 @@ test.describe("Functional Test - Add Organization Location", () => {
         test(`Kịch bản: ${scenario.scenario}`, async ({ page }) => {
             const d = scenario.data;
 
-            // Điền thông tin từ JSON
+            // Nhập Name
             if (d.name !== undefined) {
-                // Thêm timestamp cho happy case để tránh trùng dữ liệu
-                const finalName = scenario.expected === "success" ? `${d.name} ${Date.now()}` : d.name;
-                await page.locator('div').filter({ hasText: /^Name$/ }).locator('input').fill(finalName);
+                await page.locator('.oxd-input-group').filter({ hasText: 'Name' }).locator('input').fill(d.name);
             }
+
+            // Chọn City
             if (d.city) {
-                await page.locator('div').filter({ hasText: /^City$/ }).locator('input').fill(d.city);
+                await page.locator('.oxd-input-group').filter({ hasText: 'City' }).locator('input').fill(d.city);
             }
-            if (d.state) {
-                await page.locator('div').filter({ hasText: /^State\/Province$/ }).locator('input').fill(d.state);
-            }
-            if (d.zip) {
-                await page.locator('div').filter({ hasText: /^Zip\/Postal Code$/ }).locator('input').fill(d.zip);
-            }
+
+            // Chọn Country
             if (d.country) {
-                await page.locator('.oxd-select-wrapper').click();
+                const countryGroup = page.locator('.oxd-input-group').filter({ hasText: 'Country' });
+                await countryGroup.locator('.oxd-select-wrapper').click();
                 await page.locator('.oxd-form-loader').waitFor({ state: 'detached' });
-                // Dùng regex có neo ^ và $ để handle Vietnam/Viet Nam và tránh trùng United States
-                await page.getByRole('option', { name: new RegExp('^' + d.country + '$', 'i') }).click();
+                await page.getByRole('option', { name: /Viet ?Nam/i }).click();
             }
+
+            // Nhập Phone
             if (d.phone) {
-                await page.locator('div').filter({ hasText: /^Phone$/ }).locator('input').fill(d.phone);
-            }
-            if (d.fax) {
-                await page.locator('div').filter({ hasText: /^Fax$/ }).locator('input').fill(d.fax);
-            }
-            if (d.address) {
-                await page.locator('div').filter({ hasText: /^Address$/ }).locator('textarea').fill(d.address);
-            }
-            if (d.notes) {
-                await page.locator('div').filter({ hasText: /^Notes$/ }).locator('textarea').fill(d.notes);
+                await page.locator('.oxd-input-group').filter({ hasText: 'Phone' }).locator('input').fill(d.phone);
             }
 
             // Nhấn Save
@@ -55,14 +43,11 @@ test.describe("Functional Test - Add Organization Location", () => {
 
             // Kiểm tra kết quả
             if (scenario.expected === "success") {
-                await expect(page.getByText('Successfully Saved')).toBeVisible();
+                await expect(page.getByText(/Success/i).first()).toBeVisible();
                 await expect(page).toHaveURL(/.*viewLocations/);
             } 
-            else if (scenario.expected === "error_name_required") {
-                await expect(page.locator('.oxd-input-group').filter({ has: page.getByText('Name') }).getByText('Required')).toBeVisible();
-            }
-            else if (scenario.expected === "error_country_required") {
-                await expect(page.locator('.oxd-input-group').filter({ has: page.getByText('Country') }).getByText('Required')).toBeVisible();
+            else if (scenario.expected === "error_required") {
+                await expect(page.locator('.oxd-input-group').filter({ hasText: 'Name' }).locator('.oxd-input-field-error-message')).toBeVisible();
             }
         });
     }

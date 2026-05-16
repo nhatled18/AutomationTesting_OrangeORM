@@ -3,8 +3,9 @@ import { test, expect } from "@playwright/test";
 test.describe("UI Test - User Management Page", () => {
     
     test.beforeEach(async ({ page }) => {
-        // Nhảy thẳng tới trang User Management (đã có auth state)
+        // Nhảy thẳng tới trang User Management
         await page.goto("https://opensource-demo.orangehrmlive.com/web/index.php/admin/viewSystemUsers");
+        await page.locator('.oxd-form-loader').waitFor({ state: 'detached' });
     });
 
     test("Kiểm tra tiêu đề và các nút chức năng chính", async ({ page }) => {
@@ -19,26 +20,27 @@ test.describe("UI Test - User Management Page", () => {
 
     test("Kiểm tra các bộ lọc tìm kiếm (Filter Fields)", async ({ page }) => {
         // Username input
-        await expect(page.locator('div').filter({ hasText: /^Username$/ }).locator('input')).toBeVisible();
+        await expect(page.locator('.oxd-input-group').filter({ hasText: 'Username' }).locator('input')).toBeVisible();
 
-        // User Role dropdown (Nới lỏng regex cho ổn định)
-        await expect(page.locator('div').filter({ hasText: /User Role/ }).locator('.oxd-select-wrapper')).toBeVisible();
+        // User Role dropdown (Dùng .oxd-input-group để tránh Strict mode violation)
+        await expect(page.locator('.oxd-input-group').filter({ hasText: 'User Role' }).locator('.oxd-select-wrapper')).toBeVisible();
 
         // Employee Name autocomplete
         await expect(page.getByPlaceholder('Type for hints...')).toBeVisible();
 
         // Status dropdown
-        await expect(page.locator('div').filter({ hasText: /Status/ }).locator('.oxd-select-wrapper')).toBeVisible();
+        await expect(page.locator('.oxd-input-group').filter({ hasText: 'Status' }).locator('.oxd-select-wrapper')).toBeVisible();
     });
 
     test("Kiểm tra các cột trong bảng (Table Headers)", async ({ page }) => {
         const header = page.locator('.oxd-table-header');
         
-        await expect(header.getByText('Username')).toBeVisible();
-        await expect(header.getByText('User Role')).toBeVisible();
-        await expect(header.getByText('Employee Name')).toBeVisible();
-        await expect(header.getByText('Status')).toBeVisible();
-        await expect(header.getByText('Actions')).toBeVisible();
+        // Nới lỏng regex để khớp chính xác các cột
+        await expect(header.getByText(/Username/i)).toBeVisible();
+        await expect(header.getByText(/User Role/i)).toBeVisible();
+        await expect(header.getByText(/Employee Name/i)).toBeVisible();
+        await expect(header.getByText(/Status/i)).toBeVisible();
+        await expect(header.getByText(/Actions/i)).toBeVisible();
     });
 
     test("Kiểm tra dữ liệu hàng đầu tiên và các icon thao tác", async ({ page }) => {

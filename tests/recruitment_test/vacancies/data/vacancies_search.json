@@ -1,0 +1,23 @@
+[
+    {
+        "scenario": "Tìm kiếm Vacancy theo Job Title",
+        "data": {
+            "jobTitle": "QA Engineer"
+        },
+        "expected": "found"
+    },
+    {
+        "scenario": "Tìm kiếm theo Hiring Manager",
+        "data": {
+            "hiringManager": "Manda User"
+        },
+        "expected": "found"
+    },
+    {
+        "scenario": "Xóa bộ lọc (Reset)",
+        "data": {
+            "jobTitle": "Chief Executive Officer"
+        },
+        "expected": "reset"
+    }
+]

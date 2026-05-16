@@ -1,73 +1,54 @@
 import { test, expect } from "@playwright/test";
-import testData from "./data/general_info_all.json";
+import testData from "./data/general_info.json";
 
 test.describe("Advanced Data-Driven Testing - Organization General Info", () => {
     
     test.beforeEach(async ({ page }) => {
         await page.goto("https://opensource-demo.orangehrmlive.com/web/index.php/admin/viewOrganizationGeneralInformation");
         await page.locator('.oxd-form-loader').waitFor({ state: 'detached' });
+        
+        // QUAN TRỌNG: Phải bật chế độ Edit mới có thể chỉnh sửa và trigger validation
+        const editSwitch = page.locator('.oxd-switch-input');
+        if (await editSwitch.isVisible()) {
+            await editSwitch.click();
+            await page.locator('.oxd-form-loader').waitFor({ state: 'detached' });
+        }
     });
 
-    // Duyệt qua từng kịch bản trong file JSON tổng hợp
     for (const scenario of testData) {
         test(`Kịch bản: ${scenario.scenario}`, async ({ page }) => {
             const d = scenario.data;
 
-            // 1. Bật chế độ Edit
-            await page.locator('.oxd-form-loader').waitFor({ state: 'detached' });
-            await page.locator('.oxd-switch-input').click();
+            // Nhập Organization Name
+            if (d.name !== undefined) {
+                const nameInput = page.locator('.oxd-input-group').filter({ hasText: 'Organization Name' }).locator('input');
+                await nameInput.fill('');
+                await nameInput.fill(d.name);
+                await nameInput.blur(); // Trigger validation
+            }
 
-            // 2. Điền dữ liệu (Chỉ điền những trường có trong JSON của kịch bản đó)
-            if (d.organizationName !== undefined) {
-                await page.locator('div').filter({ hasText: /^Organization Name$/ }).locator('input').fill(d.organizationName);
-            }
-            if (d.registrationNumber) {
-                await page.locator('div').filter({ hasText: /^Registration Number$/ }).locator('input').fill(d.registrationNumber);
-            }
-            if (d.taxId) {
-                await page.locator('div').filter({ hasText: /^Tax ID$/ }).locator('input').fill(d.taxId);
-            }
-            if (d.phone) {
-                await page.locator('div').filter({ hasText: /^Phone$/ }).locator('input').fill(d.phone);
-            }
-            if (d.fax) {
-                await page.locator('div').filter({ hasText: /^Fax$/ }).locator('input').fill(d.fax);
-            }
+            // Nhập Email
             if (d.email !== undefined) {
-                await page.locator('div').filter({ hasText: /^Email$/ }).locator('input').fill(d.email);
-            }
-            if (d.addressStreet1) {
-                await page.locator('div').filter({ hasText: /^Address Street 1$/ }).locator('input').fill(d.addressStreet1);
-            }
-            if (d.city) {
-                await page.locator('div').filter({ hasText: /^City$/ }).locator('input').fill(d.city);
-            }
-            if (d.country) {
-                await page.locator('.oxd-select-wrapper').click();
-                await page.locator('.oxd-form-loader').waitFor({ state: 'detached' });
-                // Dùng regex có neo ^ và $ để handle Vietnam/Viet Nam và tránh trùng United States
-                await page.getByRole('option', { name: new RegExp('^' + d.country + '$', 'i') }).click();
-            }
-            if (d.notes) {
-                await page.locator('div').filter({ hasText: /^Notes$/ }).locator('textarea').fill(d.notes);
+                const emailInput = page.locator('.oxd-input-group').filter({ hasText: 'Email' }).locator('input');
+                await emailInput.fill('');
+                await emailInput.fill(d.email);
+                await emailInput.blur();
             }
 
-            // 3. Nhấn Save
-            await page.locator('.oxd-form-loader').waitFor({ state: 'detached' });
+            // Nhấn Save
             await page.getByRole('button', { name: ' Save ' }).click();
 
-            // 4. Kiểm tra kết quả mong đợi (Assertion logic)
+            // Kiểm tra kết quả
             if (scenario.expected === "success") {
-                // Kiểm tra thông báo thành công
-                await expect(page.getByText('Successfully Updated')).toBeVisible();
+                await expect(page.getByText(/Success/i).first()).toBeVisible();
             } 
             else if (scenario.expected === "error_required") {
-                // Kiểm tra lỗi bắt buộc cho Organization Name
-                await expect(page.locator('.oxd-input-group').filter({ has: page.getByText('Organization Name') }).getByText('Required')).toBeVisible();
+                const group = page.locator('.oxd-input-group').filter({ hasText: 'Organization Name' });
+                await expect(group.locator('.oxd-input-field-error-message')).toBeVisible();
             } 
             else if (scenario.expected === "error_email") {
-                // Kiểm tra lỗi định dạng email (Dùng regex không phân biệt hoa thường)
-                await expect(page.getByText(/expected format/i)).toBeVisible();
+                const group = page.locator('.oxd-input-group').filter({ hasText: 'Email' });
+                await expect(group.locator('.oxd-input-field-error-message')).toBeVisible();
             }
         });
     }

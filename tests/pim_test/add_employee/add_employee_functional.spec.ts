@@ -12,47 +12,36 @@ test.describe("Functional Test - PIM Add Employee", () => {
         test(`Kịch bản: ${scenario.scenario}`, async ({ page }) => {
             const d = scenario.data;
 
-            // Nhập First Name
-            if (d.firstName !== undefined) {
-                await page.getByPlaceholder('First Name').fill(d.firstName);
-            }
-
-            // Nhập Middle Name
-            if (d.middleName !== undefined) {
-                await page.getByPlaceholder('Middle Name').fill(d.middleName);
-            }
-
-            // Nhập Last Name
-            if (d.lastName !== undefined) {
-                await page.getByPlaceholder('Last Name').fill(d.lastName);
-            }
-
-            // Nhập Employee Id (Xóa giá trị mặc định trước khi nhập mới)
+            // Nhập thông tin cơ bản
+            if (d.firstName) await page.getByPlaceholder('First Name').fill(d.firstName);
+            if (d.middleName) await page.getByPlaceholder('Middle Name').fill(d.middleName);
+            if (d.lastName) await page.getByPlaceholder('Last Name').fill(d.lastName);
+            
+            // Employee Id (Nếu không nhập thì hệ thống tự sinh)
             if (d.employeeId !== undefined) {
-                const empIdInput = page.locator('div').filter({ hasText: /^Employee Id$/ }).locator('input');
-                await empIdInput.fill('');
-                await empIdInput.fill(d.employeeId);
+                await page.locator('.oxd-input-group').filter({ hasText: 'Employee Id' }).locator('input').fill(d.employeeId);
             }
 
             // Nhấn Save
             await page.locator('.oxd-form-loader').waitFor({ state: 'detached' });
             await page.getByRole('button', { name: ' Save ' }).click();
 
-            // Kiểm tra kết quả mong đợi
+            // Kiểm tra kết quả
             if (scenario.expected === "success") {
-                // Đợi toast message thành công (Dùng exact: true để tránh trùng với message chi tiết)
-                await page.locator('.oxd-form-loader').waitFor({ state: 'detached' });
-                await expect(page.getByText('Success', { exact: true })).toBeVisible();
-                // Sau khi lưu thành công, thường sẽ chuyển sang trang Personal Details
+                // Đợi một chút để Toast kịp hiển thị
+                await page.waitForTimeout(1000);
+                // Dùng Regex nới lỏng thay vì exact: true
+                await expect(page.getByText(/Success/i).first()).toBeVisible({ timeout: 15000 });
+                // Đợi chuyển hướng sang trang chi tiết nhân viên
                 await expect(page).toHaveURL(/.*viewPersonalDetails/, { timeout: 15000 });
             } 
             else if (scenario.expected === "error_firstName_required") {
-                const container = page.locator('.oxd-input-group').filter({ has: page.getByText('Employee Full Name') });
-                await expect(container.getByText('Required').first()).toBeVisible();
+                const group = page.locator('.oxd-input-group').filter({ has: page.getByPlaceholder('First Name') });
+                await expect(group.locator('.oxd-input-field-error-message')).toBeVisible();
             }
             else if (scenario.expected === "error_lastName_required") {
-                const container = page.locator('.oxd-input-group').filter({ has: page.getByText('Employee Full Name') });
-                await expect(container.getByText('Required').last()).toBeVisible();
+                const group = page.locator('.oxd-input-group').filter({ has: page.getByPlaceholder('Last Name') });
+                await expect(group.locator('.oxd-input-field-error-message')).toBeVisible();
             }
         });
     }

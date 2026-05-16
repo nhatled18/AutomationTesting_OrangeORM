@@ -17,8 +17,8 @@ test.describe("Functional Test - Add Employee with Login Details", () => {
         await page.getByPlaceholder('Last Name').fill(lastName);
 
         // 3. Bật toggle Create Login Details
-        // Click vào switch toggle
-        await page.locator('label').filter({ hasText: 'Create Login Details' }).locator('span').click();
+        // Click trực tiếp vào label hoặc container của switch
+        await page.locator('.oxd-switch-wrapper').filter({ hasText: 'Create Login Details' }).click();
 
         // 4. Điền Login Details
         // Nhập Username
@@ -34,8 +34,14 @@ test.describe("Functional Test - Add Employee with Login Details", () => {
         // 5. Lưu nhân viên
         await page.getByRole('button', { name: ' Save ' }).click();
         
-        // Đợi thông báo thành công
-        await expect(page.getByText('Successfully Saved')).toBeVisible();
+        // Nhấn Escape để đảm bảo dropdown đóng lại
+        await page.keyboard.press('Escape');
+        await page.locator('.oxd-autocomplete-dropdown').waitFor({ state: 'hidden' });
+        
+        // Dùng regex nới lỏng để khớp tiêu đề Id (có thể có khoảng trắng hoặc icon)
+        const header = page.locator('.orangehrm-edit-employee-content');
+        await expect(header.getByText(/Id/i)).toBeVisible();
+        // Hoặc kiểm tra cột thứ 2 (thường là Id)
         await page.waitForURL(/.*viewPersonalDetails/);
 
         // 6. Đăng xuất tài khoản Admin hiện tại

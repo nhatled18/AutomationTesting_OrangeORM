@@ -1,14 +1,18 @@
 import { test, expect } from "@playwright/test";
+
 test("kiểm tra hiển thị dropdown trong user management", async ({ page }) => {
   await page.goto("https://opensource-demo.orangehrmlive.com/web/index.php/admin/viewSystemUsers");
+  await page.locator('.oxd-form-loader').waitFor({ state: 'detached' });
 
-  // 1. Định vị cột "User Management" bằng CSS class của <a>
-  const userManagementLink = page.locator('a.oxd-topbar-body-nav-tab-item:has-text("User Management")');
+  // Tìm link User Management trên topbar bằng text (linh hoạt hơn)
+  const userManagementLink = page.locator('.oxd-topbar-body-nav-tab-item').filter({ hasText: 'User Management' });
 
   await expect(userManagementLink).toBeVisible();
 
-  // (Tùy chọn) Nếu bạn muốn click để mở dropdown ra xem nội dung chi tiết:
+  // Click để mở dropdown
   await userManagementLink.click();
-  const dropdownMenu= page.locator('ul.oxd-dropdown-menu');
-  await expect(dropdownMenu.getByText('Users')).toBeVisible();
+
+  // Kiểm tra menu con "Users" xuất hiện
+  await expect(page.locator('.oxd-dropdown-menu')).toBeVisible();
+  await expect(page.getByRole('menuitem', { name: 'Users' })).toBeVisible();
 });

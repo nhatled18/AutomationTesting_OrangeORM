@@ -1,0 +1,28 @@
+[
+    {
+        "scenario": "Happy Case - Công ty Startup VN",
+        "data": {
+            "name": "Antigravity Tech VN",
+            "registrationNumber": "REG123456",
+            "email": "contact@antigravity.vn",
+            "country": "Vietnam"
+        },
+        "expected": "success"
+    },
+    {
+        "scenario": "Negative Case - Bỏ trống tên tổ chức (Bắt buộc)",
+        "data": {
+            "name": "",
+            "email": "test@gmail.com"
+        },
+        "expected": "error_required"
+    },
+    {
+        "scenario": "Negative Case - Email sai định dạng (thiếu @)",
+        "data": {
+            "name": "OrangeHRM VN",
+            "email": "wrongemail.com"
+        },
+        "expected": "error_email"
+    }
+]

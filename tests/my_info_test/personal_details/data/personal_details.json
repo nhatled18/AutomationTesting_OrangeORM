@@ -1,0 +1,62 @@
+[
+    {
+        "scenario": "Happy Path: Update all standard personal details",
+        "data": {
+            "firstName": "Manda",
+            "middleName": "Akitil",
+            "lastName": "User",
+            "otherId": "4557889",
+            "licenseNumber": "56788",
+            "licenseExpiryDate": "2024-12-31",
+            "nationality": "American",
+            "maritalStatus": "Single",
+            "dob": "1995-05-20",
+            "gender": "Male"
+        },
+        "expected": "success"
+    },
+    {
+        "scenario": "Happy Path: Update only marital status and nationality",
+        "data": {
+            "nationality": "Vietnamese",
+            "maritalStatus": "Married"
+        },
+        "expected": "success"
+    },
+    {
+        "scenario": "Happy Path: Update gender to Female",
+        "data": {
+            "gender": "Female"
+        },
+        "expected": "success"
+    },
+    {
+        "scenario": "Negative: Empty First Name",
+        "data": {
+            "firstName": ""
+        },
+        "expected": "error_firstName_required"
+    },
+    {
+        "scenario": "Negative: Empty Last Name",
+        "data": {
+            "lastName": ""
+        },
+        "expected": "error_lastName_required"
+    },
+    {
+        "scenario": "Negative: Invalid date format for License Expiry",
+        "data": {
+            "licenseExpiryDate": "9999-99-99"
+        },
+        "expected": "error_date_format"
+    },
+    {
+        "scenario": "Happy Path: Update Custom Fields (Blood Type)",
+        "data": {
+            "bloodType": "A+",
+            "testField": "Custom Value 123"
+        },
+        "expected": "success_custom"
+    }
+]
