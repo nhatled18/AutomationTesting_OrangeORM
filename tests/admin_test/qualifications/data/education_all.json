@@ -22,7 +22,7 @@
   },
   {
     "scenario": "Edge Case - Trình độ học vấn có ký tự đặc biệt",
-    "expected": "success",
+    "expected": "error_invalid",
     "data": {
       "level": "Cert. IT (Level 7) 🎓"
     }

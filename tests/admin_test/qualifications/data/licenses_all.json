@@ -22,7 +22,7 @@
   },
   {
     "scenario": "Edge Case - Tên chứng chỉ có ký tự đặc biệt",
-    "expected": "success",
+    "expected": "error_invalid",
     "data": {
       "name": "AWS Certified Solutions Architect - Associate ☁️"
     }

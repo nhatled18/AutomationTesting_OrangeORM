@@ -22,10 +22,12 @@ test.describe("Functional Test - Add Qualification Language", () => {
 
             await page.locator('.oxd-form-loader').waitFor({ state: 'detached' });
             await page.getByRole('button', { name: ' Save ' }).click();
+            // Wait for form loader to disappear after save
+           await page.locator('.oxd-form-loader').waitFor({ state: 'detached', timeout: 20000 }).catch(() => {});
+            await page.waitForTimeout(500);
 
             if (scenario.expected === "success") {
-                await page.waitForTimeout(1000);
-                await expect(page.getByText(/Success/i).first()).toBeVisible({ timeout: 15000 });
+                await expect(page.locator('.oxd-toast--success')).toBeVisible({ timeout: 15000 });
                 await expect(page).toHaveURL(/.*viewLanguages/);
             } 
             else if (scenario.expected === "error_required") {

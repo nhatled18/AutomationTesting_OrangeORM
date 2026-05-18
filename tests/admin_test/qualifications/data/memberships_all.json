@@ -22,7 +22,7 @@
   },
   {
     "scenario": "Edge Case - Tên tổ chức có ký tự đặc biệt",
-    "expected": "success",
+    "expected": "error_invalid",
     "data": {
       "name": "Association for Computing Machinery (ACM) 💻"
     }

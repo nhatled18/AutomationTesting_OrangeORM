@@ -28,10 +28,8 @@ test.describe("Functional Test - PIM Add Employee", () => {
 
             // Kiểm tra kết quả
             if (scenario.expected === "success") {
-                // Đợi một chút để Toast kịp hiển thị
-                await page.waitForTimeout(1000);
-                // Dùng Regex nới lỏng thay vì exact: true
-                await expect(page.getByText(/Success/i).first()).toBeVisible({ timeout: 15000 });
+                // Dùng CSS class thay vì text (language-agnostic)
+                await expect(page.locator('.oxd-toast--success')).toBeVisible({ timeout: 15000 });
                 // Đợi chuyển hướng sang trang chi tiết nhân viên
                 await expect(page).toHaveURL(/.*viewPersonalDetails/, { timeout: 15000 });
             } 

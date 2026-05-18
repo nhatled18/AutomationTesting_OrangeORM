@@ -9,7 +9,12 @@ test.describe("My Info - General UI Test", () => {
     });
 
     test("Verify Sidebar Menu items are visible in My Info module", async ({ page }) => {
-        const leftMenu = page.locator('.orangehrm-tabs');
+        // Wait for page to fully load
+        await page.waitForTimeout(1000);
+        // Try to find the tabs container - it might be .orangehrm-tabs or .orangehrm-menu--tabs
+        const tabsContainer = page.locator('.orangehrm-tabs, .orangehrm-menu--tabs');
+        await expect(tabsContainer).toBeVisible({ timeout: 15000 });
+        
         const expectedItems = [
             "Personal Details",
             "Contact Details",
@@ -24,7 +29,7 @@ test.describe("My Info - General UI Test", () => {
         ];
 
         for (const item of expectedItems) {
-            await expect(leftMenu.getByText(item)).toBeVisible();
+            await expect(tabsContainer.getByText(item)).toBeVisible({ timeout: 10000 });
         }
     });
 });

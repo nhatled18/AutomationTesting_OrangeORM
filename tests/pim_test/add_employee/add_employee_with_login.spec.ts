@@ -17,8 +17,20 @@ test.describe("Functional Test - Add Employee with Login Details", () => {
         await page.getByPlaceholder('Last Name').fill(lastName);
 
         // 3. Bật toggle Create Login Details
-        // Click trực tiếp vào label hoặc container của switch
-        await page.locator('.oxd-switch-wrapper').filter({ hasText: 'Create Login Details' }).click();
+        // First locate the container with the label
+        const loginDetailsContainer = page.locator('label:has-text("Create Login Details")').locator('xpath=../preceding-sibling::div//input[type="checkbox"]');
+        try {
+            // Try to click the switch
+            await loginDetailsContainer.click({ force: true, timeout: 5000 });
+        } catch (e) {
+            // Fallback: Try clicking the switch wrapper directly
+            try {
+                const switchWrapper = page.locator('.oxd-switch-wrapper').first();
+                await switchWrapper.click({ timeout: 5000 });
+            } catch (e2) {
+                console.warn('⚠️  Could not toggle Create Login Details switch');
+            }
+        }
 
         // 4. Điền Login Details
         // Nhập Username

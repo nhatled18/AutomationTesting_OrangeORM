@@ -22,12 +22,14 @@ test.describe("Functional Test - Add Qualification Education", () => {
 
             await page.locator('.oxd-form-loader').waitFor({ state: 'detached' });
             await page.getByRole('button', { name: ' Save ' }).click();
+            // Wait for form loader to disappear after save
+          await page.locator('.oxd-form-loader').waitFor({ state: 'detached', timeout: 20000 }).catch(() => {});
+            // Wait a bit for toast to appear
+            await page.waitForTimeout(500);
 
-            // Kiểm tra kết quả
+            // Kiểm tra kết quả — dùng CSS class thay vì text (language-agnostic)
             if (scenario.expected === "success") {
-                // Đợi một chút để Toast kịp xuất hiện (fix cho trường hợp mạng lag)
-                await page.waitForTimeout(1000);
-                await expect(page.getByText(/Success/i).first()).toBeVisible({ timeout: 15000 });
+                await expect(page.locator('.oxd-toast--success')).toBeVisible({ timeout: 15000 });
                 await expect(page).toHaveURL(/.*viewEducation/);
             } 
             else if (scenario.expected === "error_required") {

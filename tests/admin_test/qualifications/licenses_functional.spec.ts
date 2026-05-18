@@ -2,9 +2,11 @@ import { test, expect } from "@playwright/test";
 import testData from "./data/licenses_all.json";
 
 test.describe("Functional Test - Add Qualification License", () => {
-    
+
     test.beforeEach(async ({ page }) => {
-        await page.goto("https://opensource-demo.orangehrmlive.com/web/index.php/admin/viewLicenses");
+        await page.goto("https://opensource-demo.orangehrmlive.com/web/index.php/admin/viewLicenses", {
+            waitUntil: 'domcontentloaded'
+        });
         await page.locator('.oxd-form-loader').waitFor({ state: 'detached' });
         await page.getByRole('button', { name: ' Add ' }).click();
         await page.locator('.oxd-form-loader').waitFor({ state: 'detached' });
@@ -16,18 +18,29 @@ test.describe("Functional Test - Add Qualification License", () => {
 
             if (d.name !== undefined) {
                 const finalName = scenario.expected === "success" ? `${d.name} ${Date.now()}` : d.name;
-                await page.locator('div').filter({ hasText: /^Name$/ }).locator('input').fill(finalName);
+                const input = page.locator('div').filter({ hasText: /^Name$/ }).locator('input');
+                await input.fill(finalName);
+                await input.blur();
             }
 
             await page.locator('.oxd-form-loader').waitFor({ state: 'detached' });
             await page.getByRole('button', { name: ' Save ' }).click();
 
             if (scenario.expected === "success") {
-                await expect(page.getByText(/Success/i).first()).toBeVisible();
+                await expect(page.locator('.oxd-toast--success')).toBeVisible({ timeout: 15000 });
                 await expect(page).toHaveURL(/.*viewLicenses/);
-            } 
+            }
             else if (scenario.expected === "error_required") {
-                await expect(page.locator('.oxd-input-group').filter({ has: page.getByText('Name') }).getByText('Required')).toBeVisible();
+                await expect(
+                    page.locator('.oxd-input-group')
+                        .filter({ has: page.getByText('Name') })
+                        .getByText('Required')
+                ).toBeVisible();
+            }
+            else if (scenario.expected === "error_invalid") {
+                await expect(
+                    page.locator('.oxd-toast--error, .oxd-input-field-error-message').first()
+                ).toBeVisible({ timeout: 5000 });
             }
         });
     }

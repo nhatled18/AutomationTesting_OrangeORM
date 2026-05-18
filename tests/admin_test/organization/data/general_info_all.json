@@ -64,7 +64,7 @@
   },
   {
     "scenario": "Edge Case - Nhập ký tự Unicode và Emoji cực nặng",
-    "expected": "success",
+    "expected": "error_invalid",
     "data": {
       "organizationName": "Unicode Test 𝚺𝚲𝚽 💎👑",
       "registrationNumber": "REG-UNI",

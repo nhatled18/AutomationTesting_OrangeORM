@@ -32,7 +32,7 @@ test.describe("Functional Test - Add Qualification Skill", () => {
 
             // Kiểm tra kết quả
             if (scenario.expected === "success") {
-                await expect(page.getByText(/Success/i).first()).toBeVisible();
+                await expect(page.locator('.oxd-toast--success')).toBeVisible({ timeout: 15000 });
                 await expect(page).toHaveURL(/.*viewSkills/);
             } 
             else if (scenario.expected === "error_required") {
