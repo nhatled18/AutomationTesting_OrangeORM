@@ -52,7 +52,7 @@ test.describe("Functional Test - Add Employee with Login Details", () => {
         
         // Dùng regex nới lỏng để khớp tiêu đề Id (có thể có khoảng trắng hoặc icon)
         const header = page.locator('.orangehrm-edit-employee-content');
-        await expect(header.getByText(/Id/i)).toBeVisible();
+        await expect(header.getByText('Employee Id', { exact: true })).toBeVisible();
         // Hoặc kiểm tra cột thứ 2 (thường là Id)
         await page.waitForURL(/.*viewPersonalDetails/);
 

@@ -5,6 +5,9 @@ test.describe("Functional Test - Job Categories Page", () => {
     test.beforeEach(async ({ page }) => {
         // Nhảy thẳng tới trang Job Categories
         await page.goto("https://opensource-demo.orangehrmlive.com/web/index.php/admin/jobCategory");
+        await page.locator('.oxd-form-loader').waitFor({ state: 'detached', timeout: 30000 }).catch(() => {});
+        await page.locator('.oxd-table-loader').waitFor({ state: 'detached', timeout: 30000 }).catch(() => {});
+        await page.locator('.oxd-loading-spinner').waitFor({ state: 'detached', timeout: 30000 }).catch(() => {});
     });
 
     test("Kiểm tra tính năng Thêm mới và Lưu (Save)", async ({ page }) => {
@@ -13,7 +16,7 @@ test.describe("Functional Test - Job Categories Page", () => {
 
         // 2. Nhập tên (Dùng Date.now() để tránh trùng)
         const categoryName = "Test_Category_" + Date.now();
-        await page.locator('div').filter({ hasText: /^Name$/ }).locator('input').fill(categoryName);
+        await page.locator('.oxd-input-group').filter({ has: page.locator('.oxd-label', { hasText: 'Name' }) }).first().locator('input').fill(categoryName);
 
         // 3. Nhấn Save
         await page.getByRole('button', { name: ' Save ' }).click();
@@ -26,11 +29,13 @@ test.describe("Functional Test - Job Categories Page", () => {
     });
 
     test("Kiểm tra tính năng chọn hàng loạt bằng Checkbox", async ({ page }) => {
-        await page.locator('.oxd-table-header .oxd-checkbox-input').click();
+        await page.locator('.oxd-table-body .oxd-table-card').first().waitFor({ state: 'visible', timeout: 15000 }).catch(() => {});
+        await page.locator('.oxd-table-header .oxd-checkbox-wrapper').click();
         await expect(page.getByRole('button', { name: ' Delete Selected' })).toBeVisible();
     });
 
     test("Kiểm tra điều hướng khi nhấn chỉnh sửa Job Category", async ({ page }) => {
+        await page.locator('.oxd-table-body .oxd-table-card').first().waitFor({ state: 'visible', timeout: 15000 }).catch(() => {});
         await page.locator('.oxd-table-card').first().locator('.bi-pencil-fill').click();
         
         // URL khi edit vẫn là saveJobCategory
@@ -39,6 +44,7 @@ test.describe("Functional Test - Job Categories Page", () => {
     });
 
     test("Kiểm tra xác nhận xóa Job Category", async ({ page }) => {
+        await page.locator('.oxd-table-body .oxd-table-card').first().waitFor({ state: 'visible', timeout: 15000 }).catch(() => {});
         await page.locator('.oxd-table-card').first().locator('.bi-trash').click();
         await expect(page.getByText('Are you Sure?')).toBeVisible();
         await page.getByRole('button', { name: ' No, Cancel ' }).click();

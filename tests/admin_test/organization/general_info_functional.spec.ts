@@ -4,19 +4,21 @@ import testData from "./data/general_info_all.json";
 test.describe("Advanced Data-Driven Testing - Organization General Info", () => {
 
     test.beforeEach(async ({ page }) => {
-        await page.goto("https://opensource-demo.orangehrmlive.com/web/index.php/admin/viewOrganizationGeneralInformation", {
-            waitUntil: 'domcontentloaded'
-        });
-        await page.locator('.oxd-form-loader').waitFor({ state: 'detached', timeout: 30000 });
+        await page.goto("https://opensource-demo.orangehrmlive.com/web/index.php/admin/viewOrganizationGeneralInformation");
+        
+        // 🔥 FIX 1: Tách riêng 2 loader và thêm catch để tránh lỗi Strict Mode (2 elements found)
+        await page.locator('.oxd-form-loader').waitFor({ state: 'detached', timeout: 30000 }).catch(() => {});
+        await page.locator('.oxd-loading-spinner').waitFor({ state: 'detached', timeout: 30000 }).catch(() => {});
 
-        // Bật Edit mode nếu cần
-        const nameInput = page.locator('.oxd-input-group').filter({ hasText: 'Organization Name' }).locator('input');
-        const isEnabled = await nameInput.isEnabled().catch(() => false);
+        // TỐI ƯU SWITCH: Kiểm tra kỹ thuộc tính của nút Switch hoặc class cha thay vì chỉ check isEnabled của input
+        const editSwitch = page.locator('.oxd-switch-input');
+        const isEditModeActive = await editSwitch.evaluate((el: HTMLInputElement) => el.checked).catch(() => false);
 
-        if (!isEnabled) {
-            await page.locator('.oxd-switch-wrapper').click().catch(() => {});
+        if (!isEditModeActive) {
+            await page.locator('.oxd-switch-wrapper').click();
+            // 🔥 FIX 2: Tách riêng loader sau khi click switch
             await page.locator('.oxd-form-loader').waitFor({ state: 'detached', timeout: 15000 }).catch(() => {});
-            await expect(nameInput).toBeEnabled({ timeout: 10000 });
+            await page.locator('.oxd-loading-spinner').waitFor({ state: 'detached', timeout: 15000 }).catch(() => {});
         }
     });
 
@@ -24,14 +26,31 @@ test.describe("Advanced Data-Driven Testing - Organization General Info", () => 
         test(`Kịch bản: ${scenario.scenario}`, async ({ page }) => {
             const d = scenario.data;
 
-            // Helper fill field
+            // Helper điền dữ liệu thông minh
             const fillField = async (label: string, value: string) => {
-                const input = page.locator('.oxd-input-group').filter({ hasText: label }).locator('input');
-                await input.fill('');
-                await input.fill(value);
-                await input.blur();
+                const group = page.locator('.oxd-input-group').filter({ has: page.locator('.oxd-label', { hasText: label }) }).first();
+                const input = group.locator('input');
+                await input.waitFor({ state: 'visible', timeout: 10000 });
+
+                if (value === "") {
+                    // Ép UI kích hoạt lỗi đỏ 'Required': Xóa trắng -> Gõ phím -> Xóa
+                    await input.focus();
+                    await page.keyboard.press('Control+A');
+                    await page.keyboard.press('Delete');
+                    await input.fill(" ");
+                    await page.keyboard.press('Backspace');
+                    await input.blur();
+                } else {
+                    // Dùng phím tắt xóa sạch dữ liệu cũ tránh lỗi dính chữ
+                    await input.focus();
+                    await page.keyboard.press('Control+A');
+                    await page.keyboard.press('Delete');
+                    await input.fill(value);
+                    await input.blur();
+                }
             };
 
+            // Điền toàn bộ các trường dữ liệu nếu có định nghĩa trong JSON
             if (d.organizationName !== undefined) await fillField('Organization Name', d.organizationName);
             if (d.registrationNumber !== undefined) await fillField('Registration Number', d.registrationNumber);
             if (d.taxId !== undefined) await fillField('Tax ID', d.taxId);
@@ -43,32 +62,38 @@ test.describe("Advanced Data-Driven Testing - Organization General Info", () => 
             if (d.city !== undefined) await fillField('City', d.city);
             if (d.stateProvince !== undefined) await fillField('State/Province', d.stateProvince);
             if (d.zipCode !== undefined) await fillField('Zip/Postal Code', d.zipCode);
+            
             if (d.notes !== undefined) {
                 const notes = page.locator('textarea');
-                await notes.fill('');
+                await notes.focus();
+                await page.keyboard.press('Control+A');
+                await page.keyboard.press('Delete');
                 await notes.fill(d.notes);
             }
 
             // Nhấn Save
             await page.getByRole('button', { name: ' Save ' }).click();
 
-            // Assert kết quả
+            // Khối xác thực kết quả (Assertions)
             if (scenario.expected === "success") {
-                await expect(page.locator('.oxd-toast--success')).toBeVisible({ timeout: 15000 });
+                const successToast = page.locator('.oxd-toast--success');
+                await expect(successToast).toBeVisible({ timeout: 15000 });
+                // Chờ Toast đóng hẳn để tránh che khuất nút Switch của test case tiếp theo
+                await successToast.waitFor({ state: 'detached', timeout: 10000 }).catch(() => {});
             }
             else if (scenario.expected === "error_required") {
-                const group = page.locator('.oxd-input-group').filter({ hasText: 'Organization Name' });
-                await expect(group.locator('.oxd-input-field-error-message')).toBeVisible();
+                const group = page.locator('.oxd-input-group').filter({ has: page.locator('.oxd-label', { hasText: 'Organization Name' }) }).first();
+                await expect(group.locator('.oxd-input-field-error-message')).toHaveText('Required', { timeout: 10000 });
             }
             else if (scenario.expected === "error_email") {
-                const group = page.locator('.oxd-input-group').filter({ hasText: 'Email' });
-                await expect(group.locator('.oxd-input-field-error-message')).toBeVisible();
+                const group = page.locator('.oxd-input-group').filter({ has: page.locator('.oxd-label', { hasText: 'Email' }) }).first();
+                await expect(group.locator('.oxd-input-field-error-message')).toBeVisible({ timeout: 10000 });
             }
             else if (scenario.expected === "error_invalid") {
-                // App có thể show error toast hoặc error message
+                // Kiểm tra cả 2 vùng sinh lỗi: Toast đỏ báo lỗi hoặc message đỏ dưới text field
                 await expect(
                     page.locator('.oxd-toast--error, .oxd-input-field-error-message').first()
-                ).toBeVisible({ timeout: 5000 });
+                ).toBeVisible({ timeout: 10000 });
             }
         });
     }

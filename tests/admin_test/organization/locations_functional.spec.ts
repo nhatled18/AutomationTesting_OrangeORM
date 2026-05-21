@@ -5,55 +5,90 @@ test.describe("Functional Test - Add Organization Location", () => {
     
     test.beforeEach(async ({ page }) => {
         await page.goto("https://opensource-demo.orangehrmlive.com/web/index.php/admin/viewLocations");
-        await page.locator('.oxd-form-loader').waitFor({ state: 'detached' });
+        
+        // 🔥 FIX 1: Tách riêng loader để tránh sập Strict Mode
+        await page.locator('.oxd-form-loader').waitFor({ state: 'detached', timeout: 20000 }).catch(() => {});
+        await page.locator('.oxd-loading-spinner').waitFor({ state: 'detached', timeout: 20000 }).catch(() => {});
+        
         await page.getByRole('button', { name: ' Add ' }).click();
-        await page.locator('.oxd-form-loader').waitFor({ state: 'detached' });
+        
+        // 🔥 FIX 1: Tách riêng loader sau khi click Add
+        await page.locator('.oxd-form-loader').waitFor({ state: 'detached', timeout: 20000 }).catch(() => {});
+        await page.locator('.oxd-loading-spinner').waitFor({ state: 'detached', timeout: 20000 }).catch(() => {});
     });
 
     for (const scenario of testData) {
         test(`Kịch bản: ${scenario.scenario}`, async ({ page }) => {
             const d = scenario.data;
+            let currentInputName = d.name;
 
-            // Nhập Name — thêm timestamp để tránh "Already exists" trên shared demo
+            // 1. Điền trường Name và xử lý kích hoạt lỗi trống
             if (d.name !== undefined) {
-                const uniqueName = scenario.expected === "success" && d.name ? `${d.name} ${Date.now()}` : d.name;
-                await page.locator('.oxd-input-group').filter({ hasText: 'Name' }).locator('input').fill(uniqueName);
+                // Sử dụng .oxd-label để bắt chính xác group input, không phụ thuộc vào dấu *
+                const group = page.locator('.oxd-input-group').filter({ has: page.locator('.oxd-label', { hasText: 'Name' }) }).first();
+                const input = group.locator('input');
+                await input.waitFor({ state: 'visible', timeout: 10000 });
+
+                if (d.name === "") {
+                    await input.focus();
+                    await page.keyboard.press('Control+A');
+                    await page.keyboard.press('Delete');
+                    await input.fill(" ");
+                    await page.keyboard.press('Backspace');
+                    await input.blur();
+                } else {
+                    currentInputName = scenario.expected === "success" && d.name
+                        ? `${d.name} ${Date.now()}`
+                        : d.name;
+                    await input.fill(currentInputName);
+                    await input.blur();
+                }
             }
 
-            // Chọn City
-            if (d.city) {
-                await page.locator('.oxd-input-group').filter({ hasText: 'City' }).locator('input').fill(d.city);
-            }
+            // Helper điền các trường text thông thường
+            const fillTextField = async (label: string, value: string) => {
+                const group = page.locator('.oxd-input-group').filter({ has: page.locator('.oxd-label', { hasText: label }) }).first();
+                await group.locator('input').fill(value);
+            };
 
-            // Chọn Country từ dropdown
+            if (d.city) await fillTextField('City', d.city);
+            if (d.phone) await fillTextField('Phone', d.phone);
+
+            // 2. Chọn Dropdown Country sử dụng bộ chọn tuyệt đối chống lệch DOM
             if (d.country && d.country.trim()) {
-                const countryGroup = page.locator('.oxd-input-group').filter({ hasText: 'Country' });
-                await countryGroup.locator('.oxd-select-wrapper').click();
-                await page.locator('.oxd-form-loader').waitFor({ state: 'detached' });
-                // Use exact matching to avoid matching multiple countries
-                await page.getByRole('option', { name: d.country.trim(), exact: true }).click();
-                await page.locator('.oxd-form-loader').waitFor({ state: 'detached' });
+                // Sử dụng .oxd-label để bắt chính xác group input
+                const countryGroup = page.locator('.oxd-input-group').filter({ has: page.locator('.oxd-label', { hasText: 'Country' }) }).first();
+                await countryGroup.locator('.oxd-select-text').click();
+                
+                const dropdown = page.locator('.oxd-select-dropdown');
+                await dropdown.waitFor({ state: 'visible', timeout: 10000 });
+                // Tìm kiếm linh hoạt hơn, tránh lỗi exact match (như 'Vietnam' vs 'Viet Nam')
+                await dropdown.getByRole('option').filter({ hasText: new RegExp(d.country.trim().replace("Vietnam", "Viet Nam"), "i") }).first().click();
+                await dropdown.waitFor({ state: 'hidden', timeout: 5000 }).catch(() => {});
             }
 
-            // Nhập Phone
-            if (d.phone) {
-                await page.locator('.oxd-input-group').filter({ hasText: 'Phone' }).locator('input').fill(d.phone);
-            }
-
-            // Nhấn Save
-            await page.locator('.oxd-form-loader').waitFor({ state: 'detached' });
+            // 🔥 FIX 1: Tách biệt loader trước khi bấm Save
+            await page.locator('.oxd-form-loader').waitFor({ state: 'detached', timeout: 5000 }).catch(() => {});
+            await page.locator('.oxd-loading-spinner').waitFor({ state: 'detached', timeout: 5000 }).catch(() => {});
             await page.getByRole('button', { name: ' Save ' }).click();
 
-            // Kiểm tra kết quả — dùng CSS class thay vì text (language-agnostic)
+            // 3. Khối kiểm tra kết quả (Assertions) chuẩn hóa theo JSON
             if (scenario.expected === "success") {
-                await expect(page.locator('.oxd-toast--success')).toBeVisible({ timeout: 15000 });
+                const successToast = page.locator('.oxd-toast--success');
+                await expect(successToast).toBeVisible({ timeout: 15000 });
+                await successToast.waitFor({ state: 'detached', timeout: 10000 }).catch(() => {});
+                
                 await expect(page).toHaveURL(/.*viewLocations/);
+                const targetRow = page.locator('.oxd-table-card').filter({ hasText: currentInputName }).first();
+                await expect(targetRow).toBeVisible({ timeout: 10000 });
             } 
             else if (scenario.expected === "error_required" || scenario.expected === "error_name_required") {
-                await expect(page.locator('.oxd-input-group').filter({ hasText: 'Name' }).locator('.oxd-input-field-error-message')).toBeVisible();
+                const group = page.locator('.oxd-input-group').filter({ has: page.locator('.oxd-label', { hasText: 'Name' }) }).first();
+                await expect(group.locator('.oxd-input-field-error-message')).toHaveText('Required', { timeout: 10000 });
             }
             else if (scenario.expected === "error_country_required") {
-                await expect(page.locator('.oxd-input-group').filter({ hasText: 'Country' }).locator('.oxd-input-field-error-message')).toBeVisible();
+                const group = page.locator('.oxd-input-group').filter({ has: page.locator('.oxd-label', { hasText: 'Country' }) }).first();
+                await expect(group.locator('.oxd-input-field-error-message')).toHaveText('Required', { timeout: 10000 });
             }
         });
     }

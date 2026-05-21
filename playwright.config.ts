@@ -1,100 +1,66 @@
 import { defineConfig, devices } from '@playwright/test';
 
-/**
- * Read environment variables from file.
- * https://github.com/motdotla/dotenv
- */
-// import dotenv from 'dotenv';
-// import path from 'path';
-// dotenv.config({ path: path.resolve(__dirname, '.env') });
-
-/**
- * See https://playwright.dev/docs/test-configuration.
- */
 export default defineConfig({
-  testDir: './tests',
-  timeout: 60000,
-  expect: {
-    timeout: 10000,
-  },
-  /* Run tests in files in parallel */
-  fullyParallel: false,
-  /* Fail the build on CI if you accidentally left test.only in the source code. */
-  forbidOnly: !!process.env.CI,
-  /* Retry on CI only */
-  retries: process.env.CI ? 2 : 1,
-  /* Opt out of parallel tests on CI. */
-  workers: 3,
-  /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: 'html',
-  /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
-  use: {
-    /* Base URL to use in actions like `await page.goto('')`. */
-    // baseURL: 'http://localhost:3000',
+    testDir: './tests',
 
-    /* Force English locale so OrangeHRM renders in English */
-    locale: 'en-US',
+    // ✅ Tăng lên 120s — server demo đôi khi rất chậm
+    timeout: 120000,
 
-    /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: 'off',
-  },
-
-  /* Configure projects for major browsers */
-  projects: [
-    { name: 'setup', testMatch: /.*\.setup\.ts/, timeout: 90000 },
-
-    {
-      name: 'chromium',
-      use: { 
-        ...devices['Desktop Chrome'],
-        storageState: 'playwright/.auth/user.json',
-      },
-      dependencies: ['setup'],
+    expect: {
+        // ✅ Tăng lên 20s — chờ element xuất hiện lâu hơn
+        timeout: 20000,
     },
 
-    {
-      name: 'firefox',
-      use: { 
-        ...devices['Desktop Firefox'],
-        storageState: 'playwright/.auth/user.json',
-      },
-      dependencies: ['setup'],
+    fullyParallel: false,
+    forbidOnly: !!process.env.CI,
+
+    // ✅ Tăng retry lên 2 — server demo bất ổn cần retry nhiều hơn
+    retries: 2,
+
+    // ✅ Giảm xuống 1 — quan trọng nhất! 3 workers làm server demo bị quá tải
+    workers: 1,
+
+    reporter: 'html',
+
+    use: {
+        locale: 'en-US',
+        trace: 'retain-on-failure', // ✅ Giữ trace khi fail để debug dễ hơn
+
+        // ✅ Thêm 2 timeout này — trước đây không set, dùng default rất ngắn
+        actionTimeout: 30000,       // click, fill, select mỗi cái cho 30s
+        navigationTimeout: 60000,   // page.goto cho 60s
     },
 
-    {
-      name: 'webkit',
-      use: { 
-        ...devices['Desktop Safari'],
-        storageState: 'playwright/.auth/user.json',
-      },
-      dependencies: ['setup'],
-    },
-
-    /* Test against mobile viewports. */
-    // {
-    //   name: 'Mobile Chrome',
-    //   use: { ...devices['Pixel 5'] },
-    // },
-    // {
-    //   name: 'Mobile Safari',
-    //   use: { ...devices['iPhone 12'] },
-    // },
-
-    /* Test against branded browsers. */
-    // {
-    //   name: 'Microsoft Edge',
-    //   use: { ...devices['Desktop Edge'], channel: 'msedge' },
-    // },
-    // {
-    //   name: 'Google Chrome',
-    //   use: { ...devices['Desktop Chrome'], channel: 'chrome' },
-    // },
-  ],
-
-  /* Run your local dev server before starting the tests */
-  // webServer: {
-  //   command: 'npm run start',
-  //   url: 'http://localhost:3000',
-  //   reuseExistingServer: !process.env.CI,
-  // },
+    projects: [
+        {
+            name: 'setup',
+            testMatch: /.*\.setup\.ts/,
+            // ✅ Tăng lên 120s — auth login cần thời gian khi server chậm
+            timeout: 120000,
+        },
+        {
+            name: 'chromium',
+            use: {
+                ...devices['Desktop Chrome'],
+                storageState: 'playwright/.auth/user.json',
+            },
+            dependencies: ['setup'],
+        },
+        {
+            name: 'firefox',
+            use: {
+                ...devices['Desktop Firefox'],
+                storageState: 'playwright/.auth/user.json',
+            },
+            dependencies: ['setup'],
+        },
+        {
+            name: 'webkit',
+            use: {
+                ...devices['Desktop Safari'],
+                storageState: 'playwright/.auth/user.json',
+            },
+            dependencies: ['setup'],
+        },
+    ],
 });

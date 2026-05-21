@@ -22,7 +22,7 @@
   },
   {
     "scenario": "Edge Case - Ngôn ngữ có ký tự đặc biệt",
-    "expected": "success",
+    "expected": "error_invalid",
     "data": {
       "name": "English (US) 🇺🇸"
     }

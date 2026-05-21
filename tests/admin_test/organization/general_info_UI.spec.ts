@@ -4,6 +4,7 @@ test.describe("UI Test - Organization General Information", () => {
     
     test.beforeEach(async ({ page }) => {
         await page.goto("https://opensource-demo.orangehrmlive.com/web/index.php/admin/viewOrganizationGeneralInformation");
+    await page.locator('.oxd-form-loader, .oxd-loading-spinner, .oxd-table-loader').waitFor({ state: 'detached', timeout: 15000 }).catch(() => {});
     });
 
     test("Kiểm tra hiển thị đầy đủ các trường thông tin (Read-only mode)", async ({ page }) => {

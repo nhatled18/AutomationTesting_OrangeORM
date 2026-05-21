@@ -4,6 +4,7 @@ test.describe("UI Test - Qualifications Memberships", () => {
     
     test.beforeEach(async ({ page }) => {
         await page.goto("https://opensource-demo.orangehrmlive.com/web/index.php/admin/membership");
+    await page.locator('.oxd-form-loader, .oxd-loading-spinner, .oxd-table-loader').waitFor({ state: 'detached', timeout: 15000 }).catch(() => {});
     });
 
     test("Kiểm tra tiêu đề và nút Add", async ({ page }) => {

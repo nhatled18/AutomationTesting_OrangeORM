@@ -5,11 +5,15 @@ test.describe("Functional Test - Employment Status Page", () => {
     test.beforeEach(async ({ page }) => {
         // Nhảy thẳng tới trang Employment Status
         await page.goto("https://opensource-demo.orangehrmlive.com/web/index.php/admin/employmentStatus");
+        await page.locator('.oxd-form-loader').waitFor({ state: 'detached', timeout: 30000 }).catch(() => {});
+        await page.locator('.oxd-table-loader').waitFor({ state: 'detached', timeout: 30000 }).catch(() => {});
+        await page.locator('.oxd-loading-spinner').waitFor({ state: 'detached', timeout: 30000 }).catch(() => {});
     });
 
     test("Kiểm tra tính năng chọn tất cả bằng Checkbox", async ({ page }) => {
+        await page.locator('.oxd-table-body .oxd-table-card').first().waitFor({ state: 'visible', timeout: 15000 }).catch(() => {});
         // Click vào checkbox ở header
-        await page.locator('.oxd-table-header .oxd-checkbox-input').click();
+        await page.locator('.oxd-table-header .oxd-checkbox-wrapper').click();
 
         // Kiểm tra nút xóa hàng loạt xuất hiện
         await expect(page.getByRole('button', { name: ' Delete Selected' })).toBeVisible();
@@ -27,6 +31,7 @@ test.describe("Functional Test - Employment Status Page", () => {
     });
 
     test("Kiểm tra điều hướng khi nhấn chỉnh sửa Employment Status", async ({ page }) => {
+        await page.locator('.oxd-table-body .oxd-table-card').first().waitFor({ state: 'visible', timeout: 15000 }).catch(() => {});
         // Nhấn nút Edit ở hàng đầu tiên
         await page.locator('.oxd-table-card').first().locator('.bi-pencil-fill').click();
 
@@ -43,7 +48,7 @@ test.describe("Functional Test - Employment Status Page", () => {
 
         // 2. Nhập tên (Dùng Date.now() để tránh bị trùng tên nếu chạy test nhiều lần)
         const statusName = "Test_Status_" + Date.now();
-        await page.locator('div').filter({ hasText: /^Name$/ }).locator('input').fill(statusName);
+        await page.locator('.oxd-input-group').filter({ has: page.locator('.oxd-label', { hasText: 'Name' }) }).first().locator('input').fill(statusName);
 
         // 3. Nhấn Save
         await page.getByRole('button', { name: ' Save ' }).click();
@@ -56,6 +61,7 @@ test.describe("Functional Test - Employment Status Page", () => {
     });
 
     test("Kiểm tra xác nhận xóa Employment Status", async ({ page }) => {
+        await page.locator('.oxd-table-body .oxd-table-card').first().waitFor({ state: 'visible', timeout: 15000 }).catch(() => {});
         // Nhấn nút Delete
         await page.locator('.oxd-table-card').first().locator('.bi-trash').click();
 

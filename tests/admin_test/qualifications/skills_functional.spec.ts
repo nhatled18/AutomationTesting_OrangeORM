@@ -6,9 +6,12 @@ test.describe("Functional Test - Add Qualification Skill", () => {
     test.beforeEach(async ({ page }) => {
         // Vào trang danh sách rồi nhấn Add
         await page.goto("https://opensource-demo.orangehrmlive.com/web/index.php/admin/viewSkills");
-        await page.locator('.oxd-form-loader').waitFor({ state: 'detached' });
+        await page.locator('.oxd-form-loader').waitFor({ state: 'detached', timeout: 15000 }).catch(() => {});
+        await page.locator('.oxd-table-loader').waitFor({ state: 'detached', timeout: 15000 }).catch(() => {});
+        await page.locator('.oxd-loading-spinner').waitFor({ state: 'detached', timeout: 15000 }).catch(() => {});
         await page.getByRole('button', { name: ' Add ' }).click();
-        await page.locator('.oxd-form-loader').waitFor({ state: 'detached' });
+        await page.locator('.oxd-form-loader').waitFor({ state: 'detached', timeout: 15000 }).catch(() => {});
+        await page.locator('.oxd-loading-spinner').waitFor({ state: 'detached', timeout: 15000 }).catch(() => {});
     });
 
     for (const scenario of testData) {
@@ -19,15 +22,30 @@ test.describe("Functional Test - Add Qualification Skill", () => {
             if (d.name !== undefined) {
                 // Thêm timestamp cho happy case để tránh trùng dữ liệu
                 const finalName = scenario.expected === "success" ? `${d.name} ${Date.now()}` : d.name;
-                await page.locator('div').filter({ hasText: /^Name$/ }).locator('input').fill(finalName);
+                const group = page.locator('.oxd-input-group').filter({ has: page.locator('.oxd-label', { hasText: 'Name' }) }).first();
+                const input = group.locator('input');
+                await input.waitFor({ state: 'visible', timeout: 10000 });
+                if (d.name === "") {
+                    await input.focus();
+                    await page.keyboard.press('Control+A');
+                    await page.keyboard.press('Delete');
+                    await input.fill(" ");
+                    await page.keyboard.press('Backspace');
+                    await input.blur();
+                } else {
+                    await input.fill(finalName);
+                    await input.blur();
+                }
             }
             
             if (d.description) {
-                await page.locator('div').filter({ hasText: /^Description$/ }).locator('textarea').fill(d.description);
+                const group = page.locator('.oxd-input-group').filter({ has: page.locator('.oxd-label', { hasText: 'Description' }) }).first();
+                await group.locator('textarea').fill(d.description);
             }
 
             // Nhấn Save
-            await page.locator('.oxd-form-loader').waitFor({ state: 'detached' });
+            await page.locator('.oxd-form-loader').waitFor({ state: 'detached', timeout: 15000 }).catch(() => {});
+            await page.locator('.oxd-loading-spinner').waitFor({ state: 'detached', timeout: 15000 }).catch(() => {});
             await page.getByRole('button', { name: ' Save ' }).click();
 
             // Kiểm tra kết quả
@@ -36,7 +54,8 @@ test.describe("Functional Test - Add Qualification Skill", () => {
                 await expect(page).toHaveURL(/.*viewSkills/);
             } 
             else if (scenario.expected === "error_required") {
-                await expect(page.locator('.oxd-input-group').filter({ has: page.getByText('Name') }).getByText('Required')).toBeVisible();
+                const group = page.locator('.oxd-input-group').filter({ has: page.locator('.oxd-label', { hasText: 'Name' }) }).first();
+                await expect(group.locator('.oxd-input-field-error-message')).toBeVisible({ timeout: 10000 });
             }
         });
     }
